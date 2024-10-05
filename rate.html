@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rate Us</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #fdfdfd; /* Arka plan sade */
+      font-family: 'Rubik', sans-serif; /* Modern sans-serif font */
+    }
+    .container {
+      max-width: 600px;
+      margin-top: 50px;
+    }
+    .card {
+      border-radius: 10px;
+      border: 1px solid #e0e0e0;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    .rating {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 15px;
+    }
+    .rating input {
+      display: none;
+    }
+    .rating label {
+      font-size: 2rem;
+      color: #ccc;
+      cursor: pointer;
+      padding: 5px;
+    }
+    .rating input:checked ~ label,
+    .rating label:hover,
+    .rating label:hover ~ label {
+      color: #ff5c5c; /* Yıldızların hover ve seçili rengi */
+    }
+    .form-control {
+      border-radius: 5px;
+    }
+    .btn-primary {
+      background-color: rgb(56, 75, 112); /* Buton rengi */
+      border-color: rgb(56, 75, 112);
+    }
+    .btn-primary:hover {
+      background-color: #ff5c5c; /* Hover rengi */
+      border-color: #ff5c5c;
+    }
+    #statusMessage {
+      margin-top: 15px;
+      font-size: 1.1rem;
+      color: #333;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card p-4">
+      <h2 class="text-center" style="color: rgb(56, 75, 112);">Bizi Puanla!</h2>
+      <p class="text-center text-muted">Memnuniyetini belirtmek için yıldızları seç.</p>
+
+      <form id="rateForm">
+        <div class="rating">
+          <input type="radio" id="star5" name="rating" value="5" required>
+          <label for="star5" class="bi bi-star-fill">&#9733;</label>
+          <input type="radio" id="star4" name="rating" value="4">
+          <label for="star4" class="bi bi-star-fill">&#9733;</label>
+          <input type="radio" id="star3" name="rating" value="3">
+          <label for="star3" class="bi bi-star-fill">&#9733;</label>
+          <input type="radio" id="star2" name="rating" value="2">
+          <label for="star2" class="bi bi-star-fill">&#9733;</label>
+          <input type="radio" id="star1" name="rating" value="1">
+          <label for="star1" class="bi bi-star-fill">&#9733;</label>
+        </div>
+
+        <div class="mb-3">
+          <textarea class="form-control" id="feedback" rows="4" placeholder="Geri bildiriminizi buraya yazın..."></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">Gönder</button>
+      </form>
+
+      <div id="statusMessage"></div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBURpE5AhPWoWZnkeKTrkaQsMFHcgokFmM",
+      authDomain: "otm-daily.firebaseapp.com",
+      projectId: "otm-daily",
+      storageBucket: "otm-daily.appspot.com",
+      messagingSenderId: "770789875942",
+      appId: "1:770789875942:web:12a775f5a1bde207fcdb27",
+      measurementId: "G-SLZY39BXF8"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const rateForm = document.getElementById("rateForm");
+    const statusMessage = document.getElementById("statusMessage");
+
+    rateForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const rating = document.querySelector('input[name="rating"]:checked').value;
+      const feedback = document.getElementById("feedback").value;
+
+      statusMessage.innerText = "Gönderiliyor...";
+
+      try {
+        await addDoc(collection(db, "ratings"), {
+          rating: rating,
+          feedback: feedback,
+          date: new Date().toISOString()
+        });
+
+        statusMessage.innerText = "Teşekkürler! Geri bildiriminiz kaydedildi.";
+        statusMessage.style.color = "green";
+        rateForm.reset();
+      } catch (error) {
+        console.error("Error adding document: ", error);
+        statusMessage.innerText = "Bir hata oluştu. Tekrar deneyin.";
+        statusMessage.style.color = "red";
+      }
+    });
+  </script>
+
+</body>
+</html>

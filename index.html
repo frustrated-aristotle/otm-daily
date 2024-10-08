@@ -148,7 +148,7 @@
             statusMessage.style.color = "red";
           } else {
             // Eğer email yoksa yeni kullanıcıyı kaydet
-            await addDoc(collection(db, "subs"), {
+            await addDoc(collection(db, "subs2"), {
               person: {
                 firstName: firstName,
                 lastName: lastName,

@@ -138,7 +138,7 @@
 
         try {
           // Firestore'da aynı email olup olmadığını kontrol et
-          const q = query(collection(db, "subs"), where("person.email", "==", email));
+          const q = query(collection(db, "subs2"), where("person.email", "==", email));
           const querySnapshot = await getDocs(q);
 
           if (!querySnapshot.empty) {
@@ -186,12 +186,12 @@
 
         try {
           // Firestore'da email ile kullanıcıyı bul
-          const q = query(collection(db, "subs"), where("person.email", "==", unsubscribeEmail));
+          const q = query(collection(db, "subs2"), where("person.email", "==", unsubscribeEmail));
           const querySnapshot = await getDocs(q);
 
           if (!querySnapshot.empty) {
             // Kullanıcıyı veritabanından sil
-            await deleteDoc(doc(db, "subs", querySnapshot.docs[0].id));
+            await deleteDoc(doc(db, "subs2", querySnapshot.docs[0].id));
 
             // Spinner'ı gizle ve başarı mesajı göster
             loadingSpinner.style.display = 'none';

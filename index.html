@@ -42,6 +42,16 @@
 </head>
 <body>
   <div class="container">
+      <div class="card shadow-sm">
+
+        <div class="d-flex justify-content-between align-content-center">
+          <div class="mb-3 card shadow-sm">Üye Ol</div>
+          <div class="mb-3 card shadow-sm">İstatistikler</div>
+          <div class="mb-3 card shadow-sm">Dinleme</div>
+        </div>
+    </div>
+    
+    <br>
     <div class="card shadow-sm p-4">
       <h2 class="text-center mb-4" style="color: rgb(56, 75, 112);">Günlük OTM'te Üye Ol!</h2>
       <form id="subscribeForm">
@@ -82,6 +92,21 @@
     // Cloudflare Worker URL'inizi buraya ekleyin
     const WORKER_URL = 'https://otm-db.a-secgeler.workers.dev/'; 
 
+    let date1 = new Date("10/10/2024");
+let date2 = new Date();
+
+// Calculating the time difference
+// of two dates
+let Difference_In_Time =
+    date2.getTime() - date1.getTime();
+
+// Calculating the no. of days between
+// two dates
+let Difference_In_Days =
+    Math.round
+        (Difference_In_Time / (1000 * 3600 * 24));
+
+console.log(Difference_In_Days);
     // Firebase yapılandırmasını almak için fonksiyon
     async function getFirebaseConfig() {
       try {
@@ -115,6 +140,14 @@
     // Firebase'i başlat ve işlemleri gerçekleştirecek ana fonksiyon
     (async () => {
       const db = await initializeFirebase();
+      
+      try {
+        const qs = query(collection(db, "orderedepisodes"), orderedby("randomIndex"));
+          const querySnapshot = await getDocs(qs);
+        console.log(querySnapshot);
+      } catch (error) {
+        
+      }
 
       // Form elemanlarını seçme
       const subscribeForm = document.getElementById("subscribeForm");

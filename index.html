@@ -142,7 +142,7 @@ console.log(Difference_In_Days);
       const db = await initializeFirebase();
       
       try {
-        const qs = query(collection(db, "orderedepisodes"), orderby("randomIndex"));
+        const qs = query(collection(db, "orderedepisodes"), orderBy("randomIndex"));
           const querySnapshot = await getDocs(qs);
         console.log(querySnapshot);
       } catch (error) {

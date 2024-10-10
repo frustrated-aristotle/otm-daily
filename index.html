@@ -87,26 +87,20 @@
   <!-- Firebase SDKs import -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, query, where, getDocs, deleteDoc, doc,orderBy} from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
-
-    // Cloudflare Worker URL'inizi buraya ekleyin
+    import { getFirestore, collection, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+  
     const WORKER_URL = 'https://otm-db.a-secgeler.workers.dev/'; 
-
-    let date1 = new Date("10/10/2024");
-let date2 = new Date();
-
-// Calculating the time difference
-// of two dates
-let Difference_In_Time =
-    date2.getTime() - date1.getTime();
-
-// Calculating the no. of days between
-// two dates
-let Difference_In_Days =
-    Math.round
-        (Difference_In_Time / (1000 * 3600 * 24));
-
-console.log(Difference_In_Days);
+  
+    // İki tarih arasındaki farkı hesaplama
+    let date1 = new Date("10/10/2024"); // ilk tarih
+    let date2 = new Date(); // şu anki tarih
+  
+    // İki tarih arasındaki gün farkını hesaplama
+    let Difference_In_Time = date2.getTime() - date1.getTime();
+    let Difference_In_Days = Math.round(Difference_In_Time / (1000 * 3600 * 24));
+  
+    console.log("Gün farkı:", Difference_In_Days);
+  
     // Firebase yapılandırmasını almak için fonksiyon
     async function getFirebaseConfig() {
       try {
@@ -121,19 +115,25 @@ console.log(Difference_In_Days);
         throw error;
       }
     }
-
-    // Firebase'i başlatma ve uygulamayı yükleme
+  
+    // Firebase uygulamasını başlatma ve Firestore'a bağlanma
     async function initializeFirebase() {
-      try {
-        const firebaseConfig = await getFirebaseConfig();
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        return db;
-      } catch (error) {
-        const statusMessage = document.getElementById("statusMessage");
-        statusMessage.innerText = "Firebase başlatılamadı. Lütfen tekrar deneyin.";
-        statusMessage.style.color = "red";
-        throw error;
+      const firebaseConfig = await getFirebaseConfig();
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+  
+      // Gün farkına göre randomIndex'i eşleşen belgeyi sorgulama
+      const qs = query(collection(db, "orderedepisodes"), where("randomIndex", "==", Difference_In_Days));
+  
+      // Sorguyu çalıştırma
+      const querySnapshot = await getDocs(qs);
+      if (!querySnapshot.empty) {
+        querySnapshot.forEach((doc) => {
+          // Belge verilerini konsola yazdırma
+          console.log(doc.id, " => ", doc.data());
+        });
+      } else {
+        console.log("Gün farkı ile eşleşen bir belge bulunamadı.");
       }
     }
 

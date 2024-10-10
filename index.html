@@ -140,14 +140,6 @@
     // Firebase'i başlat ve işlemleri gerçekleştirecek ana fonksiyon
     (async () => {
       const db = await initializeFirebase();
-      
-      try {
-        const qs = query(collection(db, "orderedepisodes"), orderBy("randomIndex"));
-          const querySnapshot = await getDocs(qs);
-        console.log(querySnapshot);
-      } catch (error) {
-        console.log("error yo: " + error);
-      }
       console.log("after yo");
       // Form elemanlarını seçme
       const subscribeForm = document.getElementById("subscribeForm");

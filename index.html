@@ -145,7 +145,7 @@
         querySnapshot.forEach((doc) => {
           const episodeData = doc.data();
           // Kart içeriğini güncelleme
-          episodeCard.querySelector(".episode-title").innerText = episodeData.title || "Bölüm Başlığı Mevcut Değil";
+          episodeCard.querySelector(".episode-title").innerText = episodeData.name || "Bölüm Başlığı Mevcut Değil";
           episodeCard.querySelector(".episode-description").innerText = episodeData.description || "Bu bölümün açıklaması yok.";
         });
       } else {
@@ -158,6 +158,105 @@
     (async () => {
       await initializeFirebase();
     })();
+
+    const db = await initializeFirebase();
+      console.log("after yo");
+      // Form elemanlarını seçme
+      const subscribeForm = document.getElementById("subscribeForm");
+      const statusMessage = document.getElementById("statusMessage");
+      const loadingSpinner = document.getElementById("loadingSpinner");
+      const unsubscribeButton = document.getElementById("unsubscribeButton");
+      const unsubscribeToggle = document.getElementById("unsubscribeToggle");
+      const unsubscribeSection = document.querySelector(".unsubscribe-section");
+
+      // Üye olma formu gönderildiğinde
+      subscribeForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const firstName = document.getElementById("firstName").value;
+        const lastName = document.getElementById("lastName").value;
+        const email = document.getElementById("email").value;
+
+        // Spinner'ı göster
+        loadingSpinner.style.display = 'inline-block';
+        statusMessage.innerText = "";
+
+        try {
+          // Firestore'da aynı email olup olmadığını kontrol et
+          const q = query(collection(db, "subs2"), where("person.email", "==", email));
+          const querySnapshot = await getDocs(q);
+
+          if (!querySnapshot.empty) {
+            // Spinner'ı gizle ve hata mesajı göster (email zaten kayıtlıysa)
+            loadingSpinner.style.display = 'none';
+            statusMessage.innerText = "E şefim sen kaydolmuşsun. Email alamıyorsan bana söyle o işi.";
+            statusMessage.style.color = "red";
+          } else {
+            // Eğer email yoksa yeni kullanıcıyı kaydet
+            await addDoc(collection(db, "subs2"), {
+              person: {
+                firstName: firstName,
+                lastName: lastName,
+                email: email
+              }
+            });
+
+            // Spinner'ı gizle ve başarı mesajı göster
+            loadingSpinner.style.display = 'none';
+            statusMessage.innerText = "Kaydettim şefim, her sabah 10:00'da görüşüyoruz.";
+            statusMessage.style.color = "green";
+            subscribeForm.reset();
+          }
+        } catch (error) {
+          console.error("Error adding document: ", error);
+          // Spinner'ı gizle ve hata mesajı göster
+          loadingSpinner.style.display = 'none';
+          statusMessage.innerText = "Olmadı şefim, tekrar dene. :(";
+          statusMessage.style.color = "red";
+        }
+      });
+
+      // Üyelikten çıkma butonuna tıklandığında
+      unsubscribeToggle.addEventListener("click", () => {
+        unsubscribeSection.style.display = unsubscribeSection.style.display === 'none' || unsubscribeSection.style.display === '' ? 'block' : 'none';
+      });
+
+      // Üyelikten çıkma işlemi
+      unsubscribeButton.addEventListener("click", async () => {
+        const unsubscribeEmail = document.getElementById("unsubscribeEmail").value;
+
+        // Spinner'ı göster
+        loadingSpinner.style.display = 'inline-block';
+        statusMessage.innerText = "";
+
+        try {
+          // Firestore'da email ile kullanıcıyı bul
+          const q = query(collection(db, "subs2"), where("person.email", "==", unsubscribeEmail));
+          const querySnapshot = await getDocs(q);
+
+          if (!querySnapshot.empty) {
+            // Kullanıcıyı veritabanından sil
+            await deleteDoc(doc(db, "subs2", querySnapshot.docs[0].id));
+
+            // Spinner'ı gizle ve başarı mesajı göster
+            loadingSpinner.style.display = 'none';
+            statusMessage.innerText = "Kendinize dikkat edin, yine gelirsiniz.";
+            statusMessage.style.color = "green";
+            unsubscribeSection.style.display = 'none'; // Bölümü gizle
+          } else {
+            // Spinner'ı gizle ve hata mesajı göster
+            loadingSpinner.style.display = 'none';
+            statusMessage.innerText = "Bu email ile üye yok. Lütfen kontrol edin.";
+            statusMessage.style.color = "red";
+          }
+        } catch (error) {
+          console.error("Error deleting document: ", error);
+          // Spinner'ı gizle ve hata mesajı göster
+          loadingSpinner.style.display = 'none';
+          statusMessage.innerText = "Olmadı şefim, tekrar dene. :(";
+          statusMessage.style.color = "red";
+        }
+      });
   </script>
 </body>
 </html>

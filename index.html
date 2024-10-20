@@ -46,9 +46,6 @@
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Hafif gölge */
     }
     .episode-title {
-      font-weight: bold;
-      font-size: 18px;
-      color: rgb(56, 75, 112);
     }
     .episode-description {
       color: #555;
@@ -59,11 +56,11 @@
 <body>
   <div class="container">
     <!-- Günün Episode'unu Gösterme Kartı -->
-    <div id="episodeCard" class="episode-card">
-      <h4 class="episode-title">Günün Episode'u Yükleniyor...</h4>
-      <p class="episode-description">Lütfen bekleyin, bölüm bilgileri yükleniyor.</p>
-    </div>
-
+    <div class="card shadow-sm p-4">
+      <h2 class="text-center mb-4 episode-title" style="color: rgb(56, 75, 112);">Günün Episode'u Yükleniyor...</h2>
+      <p class="text-center episode-description">Lütfen bekleyin, bölüm bilgileri yükleniyor.</p>
+  </div>
+    <br>
     <div class="card shadow-sm p-4">
       <h2 class="text-center mb-4" style="color: rgb(56, 75, 112);">Günlük OTM'te Üye Ol!</h2>
       <form id="subscribeForm">

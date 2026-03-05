@@ -212,38 +212,37 @@
             statusMessage.innerText = "";
 
             try {
-                // Önce "subs", sonra "subs2" koleksiyonlarında email ile kullanıcıyı bul
                 const collectionsToCheck = ["subs", "subs2"];
-                let foundDoc = null;
-                let foundCollection = null;
+                let deleted = false;
 
+                // Her koleksiyonu tek tek kontrol et
                 for (const collectionName of collectionsToCheck) {
                     const q = query(collection(db, collectionName), where("person.email", "==", unsubscribeEmail));
                     const querySnapshot = await getDocs(q);
 
                     if (!querySnapshot.empty) {
-                        foundDoc = querySnapshot.docs[0];
-                        foundCollection = collectionName;
-                        break;
+                        // Bulunan dokümanı sil
+                        const docRef = querySnapshot.docs[0].ref; // Doğrudan dokümanın referansını al
+                        await deleteDoc(docRef);
+                        deleted = true;
+                        break; // Silme başarılıysa döngüden çık
                     }
                 }
 
-                if (foundDoc && foundCollection) {
-                    // Kullanıcıyı ilgili koleksiyondan sil
-                    await deleteDoc(doc(db, foundCollection, foundDoc.id));
-                    loadingSpinner.style.display = 'none';
+                loadingSpinner.style.display = 'none';
+
+                if (deleted) {
                     statusMessage.innerText = "Kendinize dikkat edin, yine gelirsiniz.";
                     statusMessage.style.color = "green";
-                    unsubscribeSection.style.display = 'none'; // Bölümü gizle
+                    unsubscribeSection.style.display = 'none';
                 } else {
-                    loadingSpinner.style.display = 'none';
-                    statusMessage.innerText = "Bu email ile üye yok. Lütfen kontrol edin.";
+                    statusMessage.innerText = "Bu email ile üye bulunamadı. Lütfen kontrol edin.";
                     statusMessage.style.color = "red";
                 }
             } catch (error) {
-                console.error("Error deleting document: ", error);
+                console.error("Hata:", error);
                 loadingSpinner.style.display = 'none';
-                statusMessage.innerText = "Olmadı şefim, tekrar dene. :(";
+                statusMessage.innerText = "Bir hata oluştu şefim, tekrar dene. :(";
                 statusMessage.style.color = "red";
             }
         });

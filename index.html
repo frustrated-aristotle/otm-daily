@@ -212,13 +212,25 @@
             statusMessage.innerText = "";
 
             try {
-                // Firestore'da email ile kullanıcıyı bul
-                const q = query(collection(db, "subs2"), where("person.email", "==", unsubscribeEmail));
-                const querySnapshot = await getDocs(q);
+                // Önce "subs", sonra "subs2" koleksiyonlarında email ile kullanıcıyı bul
+                const collectionsToCheck = ["subs", "subs2"];
+                let foundDoc = null;
+                let foundCollection = null;
 
-                if (!querySnapshot.empty) {
-                    // Kullanıcıyı veritabanından sil
-                    await deleteDoc(doc(db, "subs2", querySnapshot.docs[0].id));
+                for (const collectionName of collectionsToCheck) {
+                    const q = query(collection(db, collectionName), where("person.email", "==", unsubscribeEmail));
+                    const querySnapshot = await getDocs(q);
+
+                    if (!querySnapshot.empty) {
+                        foundDoc = querySnapshot.docs[0];
+                        foundCollection = collectionName;
+                        break;
+                    }
+                }
+
+                if (foundDoc && foundCollection) {
+                    // Kullanıcıyı ilgili koleksiyondan sil
+                    await deleteDoc(doc(db, foundCollection, foundDoc.id));
                     loadingSpinner.style.display = 'none';
                     statusMessage.innerText = "Kendinize dikkat edin, yine gelirsiniz.";
                     statusMessage.style.color = "green";
